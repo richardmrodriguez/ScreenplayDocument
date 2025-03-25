@@ -4,11 +4,12 @@
 #include <vector>
 #include <array>
 
+
+
 enum ScreenplayPageFormat {
     PS_US,
     PS_A4
 };
-
 enum SPType {
     SP_ACTION = 0,
 
@@ -59,12 +60,10 @@ enum SPType {
     _TYPECOUNT
 };
 
-
 struct ScreenplayTextElement {
     std::string text = "";
     SPType element_type = SPType::SP_BLANK;
 };
-
 struct ScreenplayLine 
 {
     std::vector<ScreenplayTextElement> text_elements;
@@ -81,7 +80,6 @@ struct ScreenplayPage
     ScreenplayPageFormat page_format = PS_US;
     
 };
-
 struct ScreenplayDoc 
 {
     std::vector<ScreenplayPage> pages;

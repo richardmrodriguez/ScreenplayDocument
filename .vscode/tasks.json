@@ -1,0 +1,33 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "C/C++: g++ build active file",
+            "command": "/usr/bin/g++",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "${workspaceFolder}/test/parser_tester.cpp",
+                "${workspaceFolder}/libs/parsers/pdf/pdf_screenplay_parser.cpp",
+                "${workspaceFolder}/src/screenplay.cpp",
+                "${workspaceFolder}/src/screenplay_doc.cpp",
+                "-o",
+                "${workspaceFolder}/test/parser_tester",
+                "-I${workspaceFolder}",
+                "-I${workspaceFolder}/src",
+                "-I${workspaceFolder}/libs"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
