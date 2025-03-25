@@ -1,33 +1,8 @@
-# PDFScreenplayParser
-Parses a screenplay-formatted PDF document into an object of screenplay-typed elements
+# ScreenplayDocument
+A library for manipulating screenplay documents as semantically-typed heirarchical structures.
 
-# Interface
+You will be able to use this library to import a screenplay document from PDF, FDX, fountain (and possibly more) formats, for manipulation and analysis.
 
-This relies upon an **external** PDF parser / extractor, and expects a document struct that looks sort of like this:
+This will support rich annotations and metadata, such as is found in FDX files.
 
-```
-Document: [
-  Page1:[
-    Line1: [
-      Word1: {
-        StringContent: "INT.",
-        Position: (108.0, 100.10),
-        FontName: "CourierBold",
-        FontSize: 12.0,
-      },
-      Word2: {
-        StringContent: "HOUSE",
-        Position: (180.0, 100.10),
-        FontName: "CourierBold",
-        FontSize: 12.0,
-      },
-    ] 
-  ]
-  Page2: {},
-  PageN...
-]
-```
-
-By using the position, font name, and font size of each text fragment, we can determine what kind of Screenplay Element each fragment or line should be.
-
-We return a new version of this struct, which is logically optimized, and assigns a specific type `SPType` to each individual `SPTextElement`. The returned ScreenplayDoc struct is ready for Screenplay-related processing and displaying.
+You will also be able to re-export the same (or modified) document to PDF, FDX, etc. with as many compatible annotations and metadata as possible.
