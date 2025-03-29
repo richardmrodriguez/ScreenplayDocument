@@ -5,6 +5,7 @@ std::string SPTypeToString(SPType type)
 {
     switch (type) {
         case SP_ACTION:                 return std::string("SP_ACTION");
+        
         case SP_CHARACTER:              return std::string("SP_CHARACTER");
         case SP_CHARACTER_EXTENSION:    return std::string("SP_CHARACTER_EXTENSION");
         case SP_PARENTHETICAL:          return std::string("SP_PARENTHETICAL");
@@ -21,10 +22,10 @@ std::string SPTypeToString(SPType type)
         case SP_DD_R_MORE_CONTINUED:    return std::string("SP_DD_R_MORE_CONTINUED");
         // SCENE HEADING
         case SP_SCENE_HEADING:          return std::string("SP_SCENE_HEADING");
-        case SP_INT_EXT:                return std::string("SP_SUBLOCATION");
-        case SP_TIME_OF_DAY:            return std::string("SP_LOCATION");
-        case SP_LOCATION:               return std::string("SP_TIME_OF_DAY");
-        case SP_SUBLOCATION:            return std::string("SP_INT_EXT");
+        case SP_INT_EXT:                return std::string("SP_INT_EXT");
+        case SP_TIME_OF_DAY:            return std::string("SP_TIME_OF_DAY");
+        case SP_LOCATION:               return std::string("SP_LOCATION");
+        case SP_SUBLOCATION:            return std::string("SP_SUBLOCATION");
         case SP_TRANSITION:             return std::string("SP_TRANSITION");
         case SP_MORE_CONTINUED:         return std::string("SP_MORE_CONTINUED");
         // TITLE PAGE
@@ -39,7 +40,7 @@ std::string SPTypeToString(SPType type)
         case NON_CONTENT_LEFT:          return std::string("NON_CONTENT_LEFT");
         case NON_CONTENT_RIGHT:         return std::string("NON_CONTENT_RIGHT");
         case SP_OTHER:                  return std::string("SP_OTHER");
-        default:                        return std::string("UNKNOWN");
+        default:                        return std::string("INVALID");
     }
 }
 

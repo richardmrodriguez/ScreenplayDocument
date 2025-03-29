@@ -1,5 +1,6 @@
 #include "parser_tester.hpp"
-#include "libs/parsers/pdf/sp_margins.hpp"
+#include "libs/parsers/pdf/element_indentations.hpp"
+#include <vector>
 
 int main()
 {
@@ -9,16 +10,38 @@ int main()
     PDFLine test_line;
     PDFWord test_word;
 
-    SPMarginsPoints margins_points_reference;
+    ElementIndentationsPoints indents_pts_ref;
 
-    test_word.text = "INT. HOUSE - NIGHT";
-    test_word.position.x = margins_points_reference.action;
-    test_word.position.y = 400.0f;
+    auto line_with_new_word = [](float x_pos, std::string linetext, PDFLine line = {}) -> PDFLine {
+            PDFWord new_word;
+            new_word.text = linetext;
+            new_word.position.y = 400.0f; //arbitrary
+            new_word.position.x = x_pos;
+            line.words.push_back(new_word);
+            return line;
+    };
 
-    test_line.words.push_back(test_word);
+    std::vector<SPType> types_vec;
+
+    //for (size_t i = 0; i < SPType::_TYPECOUNT; i++) {
+    //    addword() // TODO: Add function that gets the default PDF position for a given SPType 
+    //}
+
+    PDFLine scene_heading_line = line_with_new_word(indents_pts_ref.action, "INT.");
+    scene_heading_line = line_with_new_word(indents_pts_ref.action, "HOUSE", scene_heading_line);
+    scene_heading_line = line_with_new_word(indents_pts_ref.action, "-", scene_heading_line);
+    scene_heading_line = line_with_new_word(indents_pts_ref.action, "DAY", scene_heading_line);
+
+    test_page.lines.push_back(scene_heading_line);
+    test_page.lines.push_back(line_with_new_word(indents_pts_ref.action, "ACTION"));
+    PDFLine character_line = line_with_new_word(indents_pts_ref.character, "CHARACTER");
+    test_page.lines.push_back(line_with_new_word(indents_pts_ref.character + 72.0, "(CHARACTER-EXTENSION)", character_line));
+    test_page.lines.push_back(line_with_new_word(indents_pts_ref.parenthetical, "(PARENTHETICAL)")); //
+    test_page.lines.push_back(line_with_new_word(indents_pts_ref.dialogue, "DIALOGUE"));
+
     //printf("PDF Line word count: %d\n", test_line.words.size());
     //printf("PDFWord in the line: %s\n", test_line.words[0].text.c_str());
-    test_page.lines.push_back(test_line);    
+
     test_pdf.pages.push_back(test_page);
 
     //printf("Test pdf word: %s\n", test_pdf.pages[0].lines[0].words[0].text.c_str());

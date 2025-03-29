@@ -14,33 +14,44 @@ enum SPType {
     SP_ACTION = 0,
 
     SP_CHARACTER,
-    SP_CHARACTER_EXTENSION,
+    SP_CHARACTER_EXTENSION, // require context to parse (previous word type)
     SP_PARENTHETICAL,
     SP_DIALOGUE,
     SP_DG_MORE_CONTINUED,
-    //DUAL DIALOGUE
-    SP_DD_L_CHARACTER,
-    SP_DD_L_PARENTHETICAL,
-    SP_DD_L_DIALOGUE,
-    SP_DD_L_MORE_CONTINUED,
-    SP_DD_R_CHARACTER,
-    SP_DD_R_PARENTHETICAL,
-    SP_DD_R_DIALOGUE,
-    SP_DD_R_MORE_CONTINUED,
+    SP_TRANSITION,
+    
     // SCENE HEADING
-    SP_SCENE_HEADING,
-    SP_INT_EXT,
+    SP_SCENE_HEADING, // begins with INT. , EXT. , or I./E.
+    SP_SCENE_HYPHEN, // Breaks up a slugline -- EXT. BASEBALL FIELD - PITCHER'S MOUND - PAST - NIGHT
+    SP_INT_EXT, //
+    SP_SCENE_TIMEFRAME,
     SP_TIME_OF_DAY,
     SP_LOCATION,
     SP_SUBLOCATION,
-    SP_SCENENUM, // Nominal scene number
-    SP_REVISION_MARGIN_MARKER, // asterisks in the left and/or right margins indicate a line or lines have been revised
     
-    SP_TRANSITION,
-    SP_MORE_CONTINUED,
+    // scene number and revision markers
+    SP_SCENENUM, // Nominal scene number
     SP_PAGENUM, // Nominal page number
-    SP_PAGE_REVISION_HEADER, //may or may not include the date / color (I think it's two lines usually, but it could be one line potentially...?)
+    
+    SP_MORE_CONTINUED,
     SP_FOOTER, // Not sure what footers are used for but....
+    
+    SP_REVISION_MARGIN_MARKER, // asterisks in the left and/or right margins indicate a line or lines have been revised
+    SP_PAGE_REVISION_HEADER, //may or may not include the date / color (I think it's two lines usually, but it could be one line potentially...?)
+    
+    //DUAL DIALOGUE
+    SP_DD_L_CHARACTER,
+    SP_DD_L_CHARACTER_EXTENSION,
+    SP_DD_L_PARENTHETICAL,
+    SP_DD_L_DIALOGUE,
+    SP_DD_L_MORE_CONTINUED,
+
+    SP_DD_R_CHARACTER,
+    SP_DD_R_CHARACTER_EXTENSION,
+    SP_DD_R_PARENTHETICAL,
+    SP_DD_R_DIALOGUE,
+    SP_DD_R_MORE_CONTINUED,
+    
     // TITLE PAGE
     TP_TITLE,
     TP_BYLINE,
@@ -57,6 +68,7 @@ enum SPType {
     NON_CONTENT_LEFT,
     NON_CONTENT_RIGHT,
     
+    NONE,
     _TYPECOUNT
 };
 

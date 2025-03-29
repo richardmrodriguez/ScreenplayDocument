@@ -7,8 +7,8 @@
 
 struct PDFPageSize 
 {
-    float x = -1.0f;
-    float y = -1.0f;
+    float width = -1.0f;
+    float height = -1.0f;
     float resolution_points = 72.0f;
 };
 

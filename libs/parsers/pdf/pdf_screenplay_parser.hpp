@@ -4,7 +4,7 @@
 #include <string>
 #include "pdf_doc.hpp"
 #include "src/screenplay_doc.hpp"
-#include "sp_margins.hpp"
+#include "element_indentations.hpp"
 
 class PDFScreenplayParser {
     public:
