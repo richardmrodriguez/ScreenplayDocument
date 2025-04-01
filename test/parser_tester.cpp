@@ -38,6 +38,8 @@ int main()
     test_page.lines.push_back(line_with_new_word(indents_pts_ref.character + 72.0, "(CHARACTER-EXTENSION)", character_line));
     test_page.lines.push_back(line_with_new_word(indents_pts_ref.parenthetical, "(PARENTHETICAL)")); //
     test_page.lines.push_back(line_with_new_word(indents_pts_ref.dialogue, "DIALOGUE"));
+    PDFLine emptyline;
+    test_page.lines.push_back(emptyline);
 
     test_pdf.pages.push_back(test_page);
 
@@ -54,7 +56,15 @@ int main()
         {
             ScreenplayLine current_line = current_page.lines[l];
             std::string line_type = SPTypeToString(current_line.line_type);
-            printf("%-20s%s\n", "Current Line Type: ", line_type.c_str());
+            printf("%-20s%s\n", 
+                "Current Line Type: ", 
+                line_type.c_str()
+            );
+            if (current_line.text_elements.size() < 1)
+            {
+                printf("------ EMPTY LINE!!! -------\n");
+                continue;
+            }
             for (size_t e = 0; e < current_line.text_elements.size(); e++)
             {
                 ScreenplayTextElement current_text_element = current_line.text_elements[e];

@@ -158,11 +158,15 @@ SPType get_type_for_line(PDFLine line, SPMarginsInches margins_inches, float res
 
 ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc) {
     ScreenplayDoc new_screenplay_doc;
+    if (pdf_doc.pages.size() < 1) return new_screenplay_doc; //empty PDF
+    
     new_screenplay_doc.pages.reserve(pdf_doc.pages.size());
 
     for (size_t p = 0; p < pdf_doc.pages.size(); p++) 
     {
         const PDFPage&  pdfpage = pdf_doc.pages[p];
+        if (pdfpage.lines.size() < 1) continue; //page has no lines, SKIP
+
         ScreenplayPage new_page;
         new_page.lines.reserve(pdfpage.lines.size());
         
@@ -172,14 +176,14 @@ ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc
         SPMarginsInches current_margins;
         float current_resolution = 72.0f;
 
-
         for (size_t l = 0; l < pdfpage.lines.size(); l++) 
         {         
             const PDFLine& pdfline = pdfpage.lines[l];
+            if (pdfline.words.size() < 1) continue; //line has no words, SKIP
+            
             ScreenplayLine new_line;
             new_line.text_elements.reserve(pdfline.words.size());
             SPType previous_type = SPType::NONE;
-            
             for (size_t w = 0; w < pdfline.words.size(); w++) 
             {
                 const PDFWord& pdfword = pdfline.words[w];
@@ -196,25 +200,27 @@ ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc
                 switch(new_type)
                 {   case SPType::SP_CHARACTER:
                         new_line.line_type = SPType::SP_CHARACTER;
-                        continue;
+                        break;
                     case SPType::SP_DD_L_CHARACTER:
                     case SPType::SP_DD_R_CHARACTER:
                         new_line.line_type = SPType::SP_DUAL_CHARACTERS;
-                        continue;
+                        break;
                     case SPType::SP_DD_L_DIALOGUE:
                     case SPType::SP_DD_R_DIALOGUE:
                         new_line.line_type = SPType::SP_DUAL_DIALOGUES;
-                        continue;
+                        break;
                     case SPType::SP_ACTION:
                         new_line.line_type = SPType::SP_ACTION;
-                        continue;
+                        break;
                     case SPType::SP_INT_EXT:
                         new_line.line_type = SPType::SP_SCENE_HEADING;
-                        continue;
+                        break;
                     case SPType::SP_PAGENUM: {
                         new_page.pagenum = pdfword.text;
-                        continue;
+                        break;
                     }
+
+                    // DON'T add the following as TEXT ELEMENTS -- only the ABOVE will be valid text elements, otherwise CONTINUE
                     case SPType::SP_PAGE_REVISION_HEADER: {
                         // TODO: parse the word string to find either the reviison "color / name" or the revision date, or both
                         // TODO: then add to the page accordingly IF the page doesn't have it yet
