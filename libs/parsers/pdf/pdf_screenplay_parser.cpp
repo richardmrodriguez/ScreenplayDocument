@@ -7,7 +7,7 @@
 #include <vector>
 
 
-bool _is_int_ext_marker(const std::string& text, 
+bool _is_int_ext_marker(const std::string& text, // TODO: make this a lambda in the get_type_for_word func, and pass in the int_ext_strings vector 
     std::vector<std::string> int_ext_strings = {
         "INT.",
         "EXT.",
@@ -29,24 +29,24 @@ SPType get_type_for_word(const PDFWord pdfword,
     const float resolution_points,
     const SPType previous_type = SPType::NONE)
     {
-        float charwidth = pdfword.font_size * 0.6f;
-        float position_tolerance = 0.01f;
+        float charwidth = pdfword.font_size * 0.6f; // TODO: calculate actual character width based on font metrics...
+        const float position_tolerance = 0.01f;
         ElementIndentationsPoints margins; // TODO: calculate the margins in points based on margins_inches and resolution_points...
-        
+
 
         switch (previous_type)
         {   
             case SPType::SP_SUBLOCATION:
-            if (pdfword.text == "-")
-            {
+                if (pdfword.text == "-")
+                {
+                    return previous_type;
+                }
                 return previous_type;
-            }
-            return previous_type;
             case SPType::SP_LOCATION:
-            if (pdfword.text == "-")
-            {
-                return previous_type;
-            }
+                if (pdfword.text == "-")
+                {
+                    return previous_type;
+                }
                 return SPType::SP_SUBLOCATION;
             case SPType::SP_INT_EXT:
                 return SPType::SP_LOCATION;
@@ -56,17 +56,19 @@ SPType get_type_for_word(const PDFWord pdfword,
                 {
                     return SPType::SP_CHARACTER_EXTENSION;
                 }
+                break;
             case SPType::SP_DD_L_CHARACTER:
                 if (pdfword.text.rfind("(", 0) == 0)
                 {
                     return SPType::SP_DD_L_CHARACTER_EXTENSION;
                 }
+                break;
             case SPType::SP_DD_R_CHARACTER:
                 if (pdfword.text.rfind("(", 0) == 0)
-                    {
-                        return SPType::SP_DD_R_CHARACTER_EXTENSION;
-                    }
-                    
+                {
+                    return SPType::SP_DD_R_CHARACTER_EXTENSION;
+                }
+                break;   
             case SPType::SP_DD_L_CHARACTER_EXTENSION:
                 return previous_type;
             case SPType::SP_DD_R_CHARACTER_EXTENSION:
@@ -108,11 +110,11 @@ SPType get_type_for_word(const PDFWord pdfword,
                 }
 
 
-                return SP_ACTION;
+                return SPType::SP_ACTION;
             };
-            if (_within_tolerance(margins.character)) return SP_CHARACTER;
-            if (_within_tolerance(margins.dialogue)) return SP_DIALOGUE;
-            if (_within_tolerance(margins.parenthetical)) return SP_PARENTHETICAL;
+            if (_within_tolerance(margins.character)) return SPType::SP_CHARACTER;
+            if (_within_tolerance(margins.dialogue)) return SPType::SP_DIALOGUE;
+            if (_within_tolerance(margins.parenthetical)) return SPType::SP_PARENTHETICAL;
             
             // implement dual dialogue later...
 
@@ -139,8 +141,9 @@ SPType get_type_for_word(const PDFWord pdfword,
             return SPType::NON_CONTENT_TOP;
         }
 
-        if (pdfword.text == "MORE") return SPType::SP_MORE_CONTINUED;
-        if (pdfword.text == "CONTINUED") return SPType::SP_MORE_CONTINUED;
+        if (pdfword.text == "(MORE)") return SPType::SP_MORE_CONTINUED;
+        if (pdfword.text == "(CONTINUED)") return SPType::SP_MORE_CONTINUED;
+        if (pdfword.text == "(CONT'D)") return SPType::SP_MORE_CONTINUED;
 
         return SPType::NON_CONTENT_BOTTOM; // or (MORE) or (CONTINUED) or just some other normal type
     
@@ -183,7 +186,7 @@ ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc
                 ScreenplayTextElement new_text_element;
                 // slighly more complex logic in here ;
                 // Might need to carry a running "context" of the previous line(s) / type(s) to determine certain elements
-                SPType new_type = get_type_for_word(pdfword,
+                SPType new_type = get_type_for_word(pdfword, // OPTIMIZATION TODO: skipt calling this func sometimes if it's redundant?
                                                     current_margins,
                                                     current_resolution,
                                                     previous_type
@@ -191,7 +194,23 @@ ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc
                 
                 previous_type = new_type;
                 switch(new_type)
-                {
+                {   case SPType::SP_CHARACTER:
+                        new_line.line_type = SPType::SP_CHARACTER;
+                        continue;
+                    case SPType::SP_DD_L_CHARACTER:
+                    case SPType::SP_DD_R_CHARACTER:
+                        new_line.line_type = SPType::SP_DUAL_CHARACTERS;
+                        continue;
+                    case SPType::SP_DD_L_DIALOGUE:
+                    case SPType::SP_DD_R_DIALOGUE:
+                        new_line.line_type = SPType::SP_DUAL_DIALOGUES;
+                        continue;
+                    case SPType::SP_ACTION:
+                        new_line.line_type = SPType::SP_ACTION;
+                        continue;
+                    case SPType::SP_INT_EXT:
+                        new_line.line_type = SPType::SP_SCENE_HEADING;
+                        continue;
                     case SPType::SP_PAGENUM: {
                         new_page.pagenum = pdfword.text;
                         continue;
@@ -199,6 +218,7 @@ ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc
                     case SPType::SP_PAGE_REVISION_HEADER: {
                         // TODO: parse the word string to find either the reviison "color / name" or the revision date, or both
                         // TODO: then add to the page accordingly IF the page doesn't have it yet
+                        new_page.revised = true;
                         continue;
                     }
                     case SPType::NON_CONTENT_TOP:

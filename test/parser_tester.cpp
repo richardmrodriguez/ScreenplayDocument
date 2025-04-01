@@ -39,16 +39,10 @@ int main()
     test_page.lines.push_back(line_with_new_word(indents_pts_ref.parenthetical, "(PARENTHETICAL)")); //
     test_page.lines.push_back(line_with_new_word(indents_pts_ref.dialogue, "DIALOGUE"));
 
-    //printf("PDF Line word count: %d\n", test_line.words.size());
-    //printf("PDFWord in the line: %s\n", test_line.words[0].text.c_str());
-
     test_pdf.pages.push_back(test_page);
-
-    //printf("Test pdf word: %s\n", test_pdf.pages[0].lines[0].words[0].text.c_str());
 
     ScreenplayDoc new_doc = Screenplay::_get_screenplay_doc_from_pdfdoc_obj(test_pdf);
 
-    //printf("This compiles lmao\n");
 
     printf("Number of pages: %d\n", new_doc.pages.size());
     for (size_t p = 0; p < new_doc.pages.size(); p++)
@@ -59,14 +53,19 @@ int main()
         for (size_t l = 0; l < current_page.lines.size(); l++)
         {
             ScreenplayLine current_line = current_page.lines[l];
-
-            printf("Number of text elements: %d\n", current_line.text_elements.size());
+            std::string line_type = SPTypeToString(current_line.line_type);
+            printf("%-20s%s\n", "Current Line Type: ", line_type.c_str());
             for (size_t e = 0; e < current_line.text_elements.size(); e++)
             {
                 ScreenplayTextElement current_text_element = current_line.text_elements[e];
                 std::string text_element_type = SPTypeToString(current_text_element.element_type);
-                printf("Text Element: %s,        Element Type: %s\n", current_text_element.text.c_str(), text_element_type.c_str());
-
+                //printf("        Text Element: %s,        Element Type: %s\n", current_text_element.text.c_str(), text_element_type.c_str());
+                printf("%20s%-26s%-10s%s\n", 
+                    "Element Type:  ", 
+                    text_element_type.c_str(),
+                    "Text Element:  ", 
+                    current_text_element.text.c_str()
+                ); 
             }
 
         }
