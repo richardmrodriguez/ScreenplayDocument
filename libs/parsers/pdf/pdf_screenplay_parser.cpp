@@ -25,21 +25,30 @@ bool _is_int_ext_marker(const std::string& text, // TODO: make this a lambda in 
 }
 
 SPType get_type_for_word(const PDFWord pdfword, 
-    const SPMarginsInches margins_inches, 
+    const ElementIndentationsPoints margins, 
     const float resolution_points,
-    const SPType previous_type = SPType::NONE)
-    {
+    const SPType previous_type = SPType::NONE,
+    const SPType current_line_type = SPType::NONE)
+{
         float charwidth = pdfword.font_size * 0.6f; // TODO: calculate actual character width based on font metrics...
         const float position_tolerance = 0.01f;
-        ElementIndentationsPoints margins; // TODO: calculate the margins in points based on margins_inches and resolution_points...
+        // TODO: calculate the margins in points based on margins_inches and resolution_points...
 
+        switch (current_line_type)
+        {
+            case SPType::SP_SCENE_HEADING:
+                if (pdfword.position.x >= margins.right) return SPType::SP_SCENENUM;
+        }
 
         switch (previous_type)
         {   
+            case SPType::SP_PARENTHETICAL:
+                return previous_type;
+
             case SPType::SP_SUBLOCATION:
                 if (pdfword.text == "-")
                 {
-                    return previous_type;
+                    return previous_type; // TODO: this is improper and invalid; need to figure out how to use this...
                 }
                 return previous_type;
             case SPType::SP_LOCATION:
@@ -79,8 +88,8 @@ SPType get_type_for_word(const PDFWord pdfword,
         }
         
         
-        if (pdfword.position.y < margins.top && pdfword.position.y > margins.bottom) 
-        { // within vertical content zone
+        if (pdfword.position.y < margins.top && pdfword.position.y > margins.bottom) // within vertical content zone
+        { 
             
             if (pdfword.position.x < margins.left)
             {
@@ -88,14 +97,15 @@ SPType get_type_for_word(const PDFWord pdfword,
                 // it could also be a revision marker...
                 // the revision asterisks could also be surrounding / attached to the scene number ...... ow my head
                 return  SPType::SP_SCENENUM;
-            } else if (pdfword.position.x > margins.right) 
+                
+            } else if (pdfword.position.x >= margins.right) 
             {
                 //figure out if it's a scene number (it probably should be... but still)
                 return SPType::SP_SCENENUM;
             }
             // within vertical AND horizontal content zone
             
-            auto _within_tolerance = [&x = pdfword.position.x, &position_tolerance](float& b) -> bool {
+            auto _within_tolerance = [&x = pdfword.position.x, &position_tolerance](float b) -> bool {
                 if (abs(x - b) > position_tolerance) return false;
                 return true;
             };
@@ -124,16 +134,16 @@ SPType get_type_for_word(const PDFWord pdfword,
         // now the text is EITHER above the top margins or below the bottom margins
 
 
-        if (pdfword.position.y > margins.top) 
+        if (pdfword.position.y >= margins.top) 
         { 
             if (pdfword.position.x < (margins.pagewidth / 3.0f)) 
             {
                 return SPType::NON_CONTENT_TOP;
             }
-
+            
             float wordwidth = charwidth * pdfword.text.size();
             float rightedge = wordwidth + pdfword.position.x;
-
+            
             if (((rightedge - margins.right) < position_tolerance) && (pdfword.text.back() == '.')) 
             {
                 return SPType::SP_PAGENUM;
@@ -151,14 +161,9 @@ SPType get_type_for_word(const PDFWord pdfword,
     
 }
 
-SPType get_type_for_line(PDFLine line, SPMarginsInches margins_inches, float resolution_points){
-    // TODO -- calls get_type_for_word
-    return SPType::SP_ACTION;
-}
-
 ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc) {
     ScreenplayDoc new_screenplay_doc;
-    if (pdf_doc.pages.size() < 1) return new_screenplay_doc; //empty PDF
+    if (pdf_doc.pages.size() < 1) return new_screenplay_doc; //FIXME: RAISE EXCEPTIONS instead of giving blank documents back...,
     
     new_screenplay_doc.pages.reserve(pdf_doc.pages.size());
 
@@ -173,41 +178,49 @@ ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc
         float prev_line_y_pos = 0.0f; // used to insert blank lines before adding the current line
         float line_height = 12.0f;
 
-        SPMarginsInches current_margins;
+        ElementIndentationsPoints element_indentations;
         float current_resolution = 72.0f;
 
         for (size_t l = 0; l < pdfpage.lines.size(); l++) 
         {         
             const PDFLine& pdfline = pdfpage.lines[l];
             if (pdfline.words.size() < 1) continue; //line has no words, SKIP
-            
+
             ScreenplayLine new_line;
             new_line.text_elements.reserve(pdfline.words.size());
-            SPType previous_type = SPType::NONE;
+            SPType previous_element_type = SPType::NONE;
             for (size_t w = 0; w < pdfline.words.size(); w++) 
             {
                 const PDFWord& pdfword = pdfline.words[w];
                 ScreenplayTextElement new_text_element;
-                // slighly more complex logic in here ;
-                // Might need to carry a running "context" of the previous line(s) / type(s) to determine certain elements
+                
                 SPType new_type = get_type_for_word(pdfword, // OPTIMIZATION TODO: skipt calling this func sometimes if it's redundant?
-                                                    current_margins,
+                                                    element_indentations,
                                                     current_resolution,
-                                                    previous_type
+                                                    previous_element_type,
+                                                    new_line.line_type
                                                     );
                 
-                previous_type = new_type;
+                previous_element_type = new_type;
                 switch(new_type)
-                {   case SPType::SP_CHARACTER:
+                {   
+                    case SPType::SP_DIALOGUE:
+                        new_line.line_type = SPType::SP_DIALOGUE;
+                    case SPType::SP_PARENTHETICAL:
+                        new_line.line_type = SPType::SP_PARENTHETICAL;
+                        break;
+                    case SPType::SP_DD_L_PARENTHETICAL:
+                    case SPType::SP_DD_R_PARENTHETICAL:
+                    case SPType::SP_DD_L_DIALOGUE:
+                    case SPType::SP_DD_R_DIALOGUE:
+                        new_line.line_type = SPType::SP_DUAL_DIALOGUES;
+                        break;
+                    case SPType::SP_CHARACTER:
                         new_line.line_type = SPType::SP_CHARACTER;
                         break;
                     case SPType::SP_DD_L_CHARACTER:
                     case SPType::SP_DD_R_CHARACTER:
                         new_line.line_type = SPType::SP_DUAL_CHARACTERS;
-                        break;
-                    case SPType::SP_DD_L_DIALOGUE:
-                    case SPType::SP_DD_R_DIALOGUE:
-                        new_line.line_type = SPType::SP_DUAL_DIALOGUES;
                         break;
                     case SPType::SP_ACTION:
                         new_line.line_type = SPType::SP_ACTION;
@@ -215,12 +228,12 @@ ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc
                     case SPType::SP_INT_EXT:
                         new_line.line_type = SPType::SP_SCENE_HEADING;
                         break;
-                    case SPType::SP_PAGENUM: {
-                        new_page.pagenum = pdfword.text;
-                        break;
-                    }
-
+                        
                     // DON'T add the following as TEXT ELEMENTS -- only the ABOVE will be valid text elements, otherwise CONTINUE
+                    case SPType::SP_PAGENUM: {
+                        new_page.page_number = pdfword.text;
+                        continue;
+                    }
                     case SPType::SP_PAGE_REVISION_HEADER: {
                         // TODO: parse the word string to find either the reviison "color / name" or the revision date, or both
                         // TODO: then add to the page accordingly IF the page doesn't have it yet
@@ -237,16 +250,41 @@ ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc
                     case SPType::SP_SCENENUM:
                         // parse for the scene number, remove asterisks if any, but also set revised if there are asterisks
                         // add scenenum to this line
-                        new_line.scenenum = pdfword.text; // TODO: actually remove any asterisks
+                        new_line.scene_number = pdfword.text; // TODO: actually remove any asterisks
+                        new_line.line_type = SPType::SP_SCENE_HEADING;
+                        printf("WE GOT A SCENE NUMBER! \n");
+                        printf("X POS: %f", pdfword.position.x);
                         continue;
-                    case SPType::SP_REVISION_MARGIN_MARKER:
+                    case SPType::SP_LINE_REVISION_MARKER:
                         new_line.revised = true;
                         continue;
 
                 }
                 
                 new_text_element.element_type = new_type;
-                new_text_element.text = pdfword.text;                
+                new_text_element.text = pdfword.text;
+                
+                // CALCULATE PRECEDING WHITESPACE CHARS
+                if (w > 0)
+                {
+                    PDFWord last_word = pdfline.words[w-1];
+
+                    float char_width = 7.2f;
+                    int maybe_whitespace_chars = int(round((
+                        pdfword.position.x - (last_word.position.x + last_word.text_length)) / char_width)
+                    );
+
+                    if (maybe_whitespace_chars >= 1)
+                    {
+                        new_text_element.preceding_whitespace_chars = u_int8_t(maybe_whitespace_chars); 
+                    }
+                    else {
+                        printf("NEW TEXT ELEMENT OVERLAPS WITH PREVIOUS ELEMENT! default to 1 space...\n");
+                        new_text_element.preceding_whitespace_chars = 1;
+                    }
+                }
+                
+
                 new_line.text_elements.push_back(new_text_element);
 
             }

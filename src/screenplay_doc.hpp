@@ -34,11 +34,11 @@ enum SPType {
     SP_PAGENUM, // Nominal page number
     SP_SCENENUM, // Nominal scene number
     
+    SP_PAGE_REVISION_HEADER, //may or may not include the date / color (I think it's two lines usually, but it could be one line potentially...?)
+    SP_LINE_REVISION_MARKER, // asterisks in the left and/or right margins indicate a line or lines have been revised
+    
     SP_MORE_CONTINUED,
     SP_FOOTER, // Not sure what footers are used for but....
-    
-    SP_PAGE_REVISION_HEADER, //may or may not include the date / color (I think it's two lines usually, but it could be one line potentially...?)
-    SP_REVISION_MARGIN_MARKER, // asterisks in the left and/or right margins indicate a line or lines have been revised
     
     //DUAL DIALOGUE
     SP_DUAL_CHARACTERS,
@@ -79,19 +79,21 @@ enum SPType {
 struct ScreenplayTextElement {
     std::string text = "";
     SPType element_type = SPType::NONE;
+    u_int8_t preceding_whitespace_chars = 0;
 };
 struct ScreenplayLine 
 {
     std::vector<ScreenplayTextElement> text_elements;
-    std::string scenenum;
+    std::string scene_number = "";
     SPType line_type = SPType::NONE;
+    u_int8_t preceding_empty_lines = 0;
     bool revised = false;
     bool blank = true;
 };
 struct ScreenplayPage 
 {
     std::vector<ScreenplayLine> lines;
-    std::string pagenum;
+    std::string page_number = "";
     bool revised = false;
     std::string revision_color;
     ScreenplayPageFormat page_format = PS_US;
@@ -105,5 +107,7 @@ struct ScreenplayDoc
 std::string SPTypeToString(SPType type);
 
 std::array<std::string, SPType::_TYPECOUNT> getSPTypesAsStrings();
+
+std::string SPGetLineAsString(ScreenplayLine line);
 
 

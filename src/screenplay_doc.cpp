@@ -40,13 +40,13 @@ std::string SPTypeToString(SPType type)
         case SPType::NON_CONTENT_LEFT:          return std::string("NON_CONTENT_LEFT");
         case SPType::NON_CONTENT_RIGHT:         return std::string("NON_CONTENT_RIGHT");
         case SPType::SP_OTHER:                  return std::string("SP_OTHER");
-        default:                                return std::string("INVALID");
+        case SPType::NONE:                      return std::string("NONE");
+        default:                                return std::string("!!--INVALID--!!");
     }
 }
 
-
-
-std::array<std::string, SPType::_TYPECOUNT> getSPTypesAsStrings() {
+std::array<std::string, SPType::_TYPECOUNT> getSPTypesAsStrings() 
+{
     std::array<std::string, _TYPECOUNT> alltypes;
 
     for (int i = SP_ACTION; i < _TYPECOUNT; i++) {
@@ -57,3 +57,19 @@ std::array<std::string, SPType::_TYPECOUNT> getSPTypesAsStrings() {
     return alltypes;
 }
 
+std::string SPGetLineAsString(ScreenplayLine line)
+{
+    if (line.text_elements.size() < 0)
+    {
+        return std::string("");
+    }
+    std::string str;
+    for (size_t i = 0; i < line.text_elements.size(); i++)
+    {
+        ScreenplayTextElement cur_text_element = line.text_elements.at(i);
+        str.append(cur_text_element.preceding_whitespace_chars, ' ');
+        str.append(cur_text_element.text);
+        printf("-----PRECEDING WHITESPACE: %d\n", cur_text_element.preceding_whitespace_chars);
+    }
+    return str;
+}

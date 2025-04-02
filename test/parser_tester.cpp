@@ -12,32 +12,37 @@ int main()
 
     ElementIndentationsPoints indents_pts_ref;
 
-    auto line_with_new_word = [](float x_pos, std::string linetext, PDFLine line = {}) -> PDFLine {
+    auto line_with_new_word = [](float x_pos, float y_pos, std::string linetext, PDFLine line = {}) -> PDFLine {
             PDFWord new_word;
             new_word.text = linetext;
-            new_word.position.y = 400.0f; //arbitrary
+            new_word.position.y = y_pos; //TODO: TEST delta between lines and automatic EMPTY LINE adding...
             new_word.position.x = x_pos;
+            new_word.text_length = linetext.length() * 7.2f;
             line.words.push_back(new_word);
             return line;
     };
 
     std::vector<SPType> types_vec;
 
-    //for (size_t i = 0; i < SPType::_TYPECOUNT; i++) {
-    //    addword() // TODO: Add function that gets the default PDF position for a given SPType 
-    //}
+    // TODO: add REVISION HEADER
+    // TODO: add REVISED LINE (with revision asterisks in margins)
+    PDFLine scene_number_line = line_with_new_word(518.4f, 720.0f, "1A.");
+    test_page.lines.push_back(scene_number_line);
 
-    PDFLine scene_heading_line = line_with_new_word(indents_pts_ref.action, "INT.");
-    scene_heading_line = line_with_new_word(indents_pts_ref.action, "HOUSE", scene_heading_line);
-    scene_heading_line = line_with_new_word(indents_pts_ref.action, "-", scene_heading_line);
-    scene_heading_line = line_with_new_word(indents_pts_ref.action, "DAY", scene_heading_line);
+    PDFLine scene_heading_line = line_with_new_word(50.4f, 708.0f, "*1B*");
+    scene_heading_line = line_with_new_word(indents_pts_ref.action, 708.0f, "INT.", scene_heading_line);
+    scene_heading_line = line_with_new_word(indents_pts_ref.action + (7.2f * 6), 708.0f, "HOUSE", scene_heading_line);
+    scene_heading_line = line_with_new_word(indents_pts_ref.action + (7.2f * 13), 708.0f,"-", scene_heading_line);
+    scene_heading_line = line_with_new_word(indents_pts_ref.action + (7.2f * 15), 708.0f, "DAY", scene_heading_line);
+    scene_heading_line = line_with_new_word(indents_pts_ref.right, 708.0f, "*1B*", scene_heading_line);
 
     test_page.lines.push_back(scene_heading_line);
-    test_page.lines.push_back(line_with_new_word(indents_pts_ref.action, "ACTION"));
-    PDFLine character_line = line_with_new_word(indents_pts_ref.character, "CHARACTER");
-    test_page.lines.push_back(line_with_new_word(indents_pts_ref.character + 72.0, "(CHARACTER-EXTENSION)", character_line));
-    test_page.lines.push_back(line_with_new_word(indents_pts_ref.parenthetical, "(PARENTHETICAL)")); //
-    test_page.lines.push_back(line_with_new_word(indents_pts_ref.dialogue, "DIALOGUE"));
+    
+    test_page.lines.push_back(line_with_new_word(indents_pts_ref.action, 696.0f, "ACTION"));
+    PDFLine character_line = line_with_new_word(indents_pts_ref.character, 684.0f,"CHARACTER");
+    test_page.lines.push_back(line_with_new_word(indents_pts_ref.character + (72.0),684.0f, "(CHARACTER-EXTENSION)", character_line));
+    test_page.lines.push_back(line_with_new_word(indents_pts_ref.parenthetical, 672.0f,"(PARENTHETICAL)")); //
+    test_page.lines.push_back(line_with_new_word(indents_pts_ref.dialogue, 660.0f,"DIALOGUE"));
     PDFLine emptyline;
     test_page.lines.push_back(emptyline);
 
@@ -51,15 +56,19 @@ int main()
     {
         ScreenplayPage current_page = new_doc.pages[p];
         
-        printf("Number of lines: %d\n", current_page.lines.size());
+        printf("PAGE NUMBER: %s\n", current_page.page_number.c_str());
         for (size_t l = 0; l < current_page.lines.size(); l++)
         {
             ScreenplayLine current_line = current_page.lines[l];
             std::string line_type = SPTypeToString(current_line.line_type);
-            printf("%-20s%s\n", 
+            std::string line_text = SPGetLineAsString(current_line);
+            printf("%-20s%-26s%23s%-10s\n", 
                 "Current Line Type: ", 
-                line_type.c_str()
+                line_type.c_str(),
+                "Line text:  ",
+                line_text.c_str()
             );
+            if (current_line.scene_number != "") printf("-----SCENE NUMBER: %s\n", current_line.scene_number.c_str());
             if (current_line.text_elements.size() < 1)
             {
                 printf("------ EMPTY LINE!!! -------\n");
@@ -70,10 +79,11 @@ int main()
                 ScreenplayTextElement current_text_element = current_line.text_elements[e];
                 std::string text_element_type = SPTypeToString(current_text_element.element_type);
                 //printf("        Text Element: %s,        Element Type: %s\n", current_text_element.text.c_str(), text_element_type.c_str());
-                printf("%20s%-26s%-10s%s\n", 
-                    "Element Type:  ", 
+                printf("%20s%8s%-26s%-10s%s\n", 
+                    "Element Type:  ",
+                    " ",
                     text_element_type.c_str(),
-                    "Text Element:  ", 
+                    "Element text:  ", 
                     current_text_element.text.c_str()
                 ); 
             }

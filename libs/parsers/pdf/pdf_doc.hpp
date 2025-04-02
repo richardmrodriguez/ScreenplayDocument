@@ -15,10 +15,10 @@ struct PDFPageSize
 struct PDFWord 
 {
     std::string text;
-    float text_length;
+    float text_length = -1.0f;
     TextPosition position;
     std::string font_name;
-    float font_size;
+    float font_size = 12.0f;
 };
 
 struct PDFLine 
