@@ -30,10 +30,12 @@ struct PDFLine
 struct PDFPage 
 {
     std::vector<PDFLine> lines;
-    PDFPageSize pagesize;
+    PDFPageSize pagesize; // PDF Width and Height
 };
 
 struct PDFDoc 
 {
     std::vector<PDFPage> pages;
+    std::string pdf_creator; // Which software made this PDF (Final Draft, Celtx, etc....?)
+    
 };

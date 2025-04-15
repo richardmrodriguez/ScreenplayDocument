@@ -31,9 +31,9 @@ int main()
 
     PDFLine scene_heading_line = line_with_new_word(50.4f, 708.0f, "*1B*");
     scene_heading_line = line_with_new_word(indents_pts_ref.action, 708.0f, "INT.", scene_heading_line);
-    scene_heading_line = line_with_new_word(indents_pts_ref.action + (7.2f * 6), 708.0f, "HOUSE", scene_heading_line);
-    scene_heading_line = line_with_new_word(indents_pts_ref.action + (7.2f * 13), 708.0f,"-", scene_heading_line);
-    scene_heading_line = line_with_new_word(indents_pts_ref.action + (7.2f * 15), 708.0f, "DAY", scene_heading_line);
+    scene_heading_line = line_with_new_word(indents_pts_ref.action + (7.2f * 5), 708.0f, "HOUSE", scene_heading_line);
+    scene_heading_line = line_with_new_word(indents_pts_ref.action + (7.2f * 11), 708.0f,"-", scene_heading_line);
+    scene_heading_line = line_with_new_word(indents_pts_ref.action + (7.2f * 13), 708.0f, "DAY", scene_heading_line);
     scene_heading_line = line_with_new_word(indents_pts_ref.right, 708.0f, "*1B*", scene_heading_line);
 
     test_page.lines.push_back(scene_heading_line);
@@ -41,7 +41,7 @@ int main()
     test_page.lines.push_back(line_with_new_word(indents_pts_ref.action, 696.0f, "ACTION"));
     PDFLine character_line = line_with_new_word(indents_pts_ref.character, 684.0f,"CHARACTER");
     test_page.lines.push_back(line_with_new_word(indents_pts_ref.character + (72.0),684.0f, "(CHARACTER-EXTENSION)", character_line));
-    test_page.lines.push_back(line_with_new_word(indents_pts_ref.parenthetical, 672.0f,"(PARENTHETICAL)")); //
+    test_page.lines.push_back(line_with_new_word(indents_pts_ref.parenthetical, 672.0f,"(PARENTHETICAL)"));
     test_page.lines.push_back(line_with_new_word(indents_pts_ref.dialogue, 660.0f,"DIALOGUE"));
     PDFLine emptyline;
     test_page.lines.push_back(emptyline);
@@ -50,6 +50,13 @@ int main()
 
     ScreenplayDoc new_doc = Screenplay::_get_screenplay_doc_from_pdfdoc_obj(test_pdf);
 
+ 
+    //PRINTING / TESTING
+
+    //TODO: Get all CHARACTERS in a page
+    //TODO: Get all SCENES in a page
+    //TODO: Get CHARACTER NAME and EXTENSION from a CHARACTER line
+    //TODO: Get LOCATION, SUBLOCATION, TIME OF DAY, etc. from a SCENE_HEADING line
 
     printf("Number of pages: %d\n", new_doc.pages.size());
     for (size_t p = 0; p < new_doc.pages.size(); p++)
@@ -79,23 +86,19 @@ int main()
                 ScreenplayTextElement current_text_element = current_line.text_elements[e];
                 std::string text_element_type = SPTypeToString(current_text_element.element_type);
                 //printf("        Text Element: %s,        Element Type: %s\n", current_text_element.text.c_str(), text_element_type.c_str());
-                printf("%20s%8s%-26s%-10s%s\n", 
+                printf("%20s%8s%-26s%-10s%-40s%-24s%-10d\n", 
                     "Element Type:  ",
                     " ",
                     text_element_type.c_str(),
                     "Element text:  ", 
-                    current_text_element.text.c_str()
+                    current_text_element.text.c_str(),
+                    "PRECEDING WHITESPACE: ",
+                    current_text_element.preceding_whitespace_chars
                 ); 
             }
 
         }
     }
-
-    //std::array<std::string, _TYPECOUNT> all_types_as_strings = getSPTypesAsStrings();
-//
-    //for (size_t i = 0; i < all_types_as_strings.size(); i++){
-    //    printf("%s\n", all_types_as_strings[i].c_str());
-    //}
 
     return 0;
 

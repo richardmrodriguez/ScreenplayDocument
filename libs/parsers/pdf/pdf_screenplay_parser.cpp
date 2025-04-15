@@ -201,7 +201,7 @@ ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc
                                                     new_line.line_type
                                                     );
                 
-                previous_element_type = new_type;
+                
                 switch(new_type)
                 {   
                     case SPType::SP_DIALOGUE:
@@ -234,7 +234,7 @@ ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc
                         new_page.page_number = pdfword.text;
                         continue;
                     }
-                    case SPType::SP_PAGE_REVISION_HEADER: {
+                    case SPType::SP_PAGE_REVISION_LABEL: {
                         // TODO: parse the word string to find either the reviison "color / name" or the revision date, or both
                         // TODO: then add to the page accordingly IF the page doesn't have it yet
                         new_page.revised = true;
@@ -252,11 +252,11 @@ ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc
                         // add scenenum to this line
                         new_line.scene_number = pdfword.text; // TODO: actually remove any asterisks
                         new_line.line_type = SPType::SP_SCENE_HEADING;
-                        printf("WE GOT A SCENE NUMBER! \n");
-                        printf("X POS: %f", pdfword.position.x);
+                        previous_element_type = SPType::SP_SCENENUM;
                         continue;
                     case SPType::SP_LINE_REVISION_MARKER:
                         new_line.revised = true;
+                        previous_element_type = SPType::SP_LINE_REVISION_MARKER;
                         continue;
 
                 }
@@ -264,7 +264,7 @@ ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc
                 new_text_element.element_type = new_type;
                 new_text_element.text = pdfword.text;
                 
-                // CALCULATE PRECEDING WHITESPACE CHARS
+                // CALCULATE PRECEDING WHITESPACE CHARS, IF ANY
                 if (w > 0)
                 {
                     PDFWord last_word = pdfline.words[w-1];
@@ -274,9 +274,20 @@ ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc
                         pdfword.position.x - (last_word.position.x + last_word.text_length)) / char_width)
                     );
 
-                    if (maybe_whitespace_chars >= 1)
+                    if ((maybe_whitespace_chars >= 1))
                     {
-                        new_text_element.preceding_whitespace_chars = u_int8_t(maybe_whitespace_chars); 
+
+                        switch (previous_element_type)
+                        {
+                            case SPType::SP_SCENENUM:
+                            case SPType::SP_LINE_REVISION_MARKER:
+                                new_text_element.preceding_whitespace_chars = 0;
+                                break;
+                            
+                            default:
+                                new_text_element.preceding_whitespace_chars = u_int8_t(maybe_whitespace_chars);
+                                break;
+                        }
                     }
                     else {
                         printf("NEW TEXT ELEMENT OVERLAPS WITH PREVIOUS ELEMENT! default to 1 space...\n");
@@ -284,7 +295,7 @@ ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc
                     }
                 }
                 
-
+                previous_element_type = new_type;
                 new_line.text_elements.push_back(new_text_element);
 
             }

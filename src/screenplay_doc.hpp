@@ -22,19 +22,20 @@ enum SPType {
     
     // SCENE HEADING
     SP_SCENE_HEADING, // begins with INT. , EXT. , or I./E.
-    SP_SCENE_HYPHEN, // Breaks up a slugline -- EXT. BASEBALL FIELD - PITCHER'S MOUND - PAST - NIGHT
     SP_INT_EXT, //
-    SP_SCENE_TIMEFRAME, // PAST, PRESENT, FUTURE, arbitrary timeframe "BEFORE DINNER", "AFTER THE EXPLOSION", etc.
-    SP_TIME_OF_DAY,
     SP_LOCATION,
+    SP_SCENE_HEADING_SUB_ELEMENT,
+    SP_SCENE_HEADING_SEPARATOR, // Breaks up a slugline -- EXT. BASEBALL FIELD - PITCHER'S MOUND - PAST - NIGHT
+    SP_SCENE_TIMEFRAME, // PAST, PRESENT, FUTURE, arbitrary timeframe "BEFORE DINNER", "AFTER THE EXPLOSION", etc.
     SP_SUBLOCATION,
+    SP_TIME_OF_DAY,
 
     SP_SHOT_ANGLE, // SHOT or ANGLE on something, NOT a full scene heading / location
     
     SP_PAGENUM, // Nominal page number
     SP_SCENENUM, // Nominal scene number
     
-    SP_PAGE_REVISION_HEADER, //may or may not include the date / color (I think it's two lines usually, but it could be one line potentially...?)
+    SP_PAGE_REVISION_LABEL, //may or may not include the date / color (I think it's two lines usually, but it could be one line potentially...?)
     SP_LINE_REVISION_MARKER, // asterisks in the left and/or right margins indicate a line or lines have been revised
     
     SP_MORE_CONTINUED,
@@ -95,7 +96,8 @@ struct ScreenplayPage
     std::vector<ScreenplayLine> lines;
     std::string page_number = "";
     bool revised = false;
-    std::string revision_color;
+    std::string revision_label;
+    std::string revision_date;
     ScreenplayPageFormat page_format = PS_US;
     
 };

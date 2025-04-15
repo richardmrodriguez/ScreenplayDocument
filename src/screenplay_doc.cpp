@@ -67,9 +67,14 @@ std::string SPGetLineAsString(ScreenplayLine line)
     for (size_t i = 0; i < line.text_elements.size(); i++)
     {
         ScreenplayTextElement cur_text_element = line.text_elements.at(i);
+        if (i > 0)
+        {
+            str.append(cur_text_element.preceding_whitespace_chars, ' ');
+            str.append(cur_text_element.text);
+            continue;
+        }
         str.append(cur_text_element.preceding_whitespace_chars, ' ');
         str.append(cur_text_element.text);
-        printf("-----PRECEDING WHITESPACE: %d\n", cur_text_element.preceding_whitespace_chars);
     }
     return str;
 }

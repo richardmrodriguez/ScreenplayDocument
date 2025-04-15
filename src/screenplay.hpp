@@ -15,6 +15,6 @@ class Screenplay {
     
     static ScreenplayDoc get_screenplay_doc_from_file(std::string filepath, ExternalDocType doctype);
     static ScreenplayDoc _get_screenplay_doc_from_pdfdoc_obj(PDFDoc pdfdoc);
-    
-    
+    // Get / Set PDFDoc Object? Should be its own class with constructor / destructor?
+    //     
 };
