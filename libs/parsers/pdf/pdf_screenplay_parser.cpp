@@ -263,6 +263,7 @@ ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc
                 
                 new_text_element.element_type = new_type;
                 new_text_element.text = pdfword.text;
+                new_text_element.element_position = pdfword.position;
                 
                 // CALCULATE PRECEDING WHITESPACE CHARS, IF ANY
                 if (w > 0)

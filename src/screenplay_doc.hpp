@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <array>
+#include "text_position.hpp"
 
 
 
@@ -81,6 +82,7 @@ struct ScreenplayTextElement {
     std::string text = "";
     SPType element_type = SPType::NONE;
     u_int8_t preceding_whitespace_chars = 0;
+    TextPosition element_position; // x,y coordinates -- from PDF, may not be set if importing from other document types
 };
 struct ScreenplayLine 
 {
