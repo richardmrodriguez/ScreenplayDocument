@@ -185,7 +185,7 @@ ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc
         {         
             const PDFLine& pdfline = pdfpage.lines[l];
             if (pdfline.words.size() < 1) continue; //line has no words, SKIP
-
+            
             ScreenplayLine new_line;
             new_line.text_elements.reserve(pdfline.words.size());
             SPType previous_element_type = SPType::NONE;
@@ -195,12 +195,13 @@ ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc
                 ScreenplayTextElement new_text_element;
                 
                 SPType new_type = get_type_for_word(pdfword, // OPTIMIZATION TODO: skipt calling this func sometimes if it's redundant?
-                                                    element_indentations,
-                                                    current_resolution,
-                                                    previous_element_type,
-                                                    new_line.line_type
-                                                    );
+                    element_indentations,
+                    current_resolution,
+                    previous_element_type,
+                    new_line.line_type
+                );
                 
+                new_text_element.element_position = pdfword.position; // setting position this early for debug purposes
                 
                 switch(new_type)
                 {   
@@ -263,7 +264,6 @@ ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc
                 
                 new_text_element.element_type = new_type;
                 new_text_element.text = pdfword.text;
-                new_text_element.element_position = pdfword.position;
                 
                 // CALCULATE PRECEDING WHITESPACE CHARS, IF ANY
                 if (w > 0)

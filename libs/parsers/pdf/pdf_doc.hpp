@@ -14,9 +14,9 @@ struct PDFPageSize
 
 struct PDFWord 
 {
-    std::string text;
-    float text_length = -1.0f;
-    TextPosition position;
+    std::string text; // string value of word
+    float text_length = -1.0f; // bounding box x-width
+    TextPosition position; // x,y PDF Coordinates
     std::string font_name;
     float font_size = 12.0f;
 };
