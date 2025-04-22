@@ -198,10 +198,10 @@ SPType get_type_for_word(const PDFWord pdfword,
             float rightedge = wordwidth + pdfword.position.x;
             
             //this block might be redundant?
-            if (((rightedge - margins.right) < position_tolerance) && (pdfword.text.back() == '.')) 
-            {
-                return SPType::SP_PAGENUM;
-            }
+            //if (((rightedge - margins.right) < position_tolerance) && (pdfword.text.back() == '.')) 
+            //{
+            //    return SPType::SP_PAGENUM;
+            //}
             return SPType::NON_CONTENT_TOP;
         }
 
