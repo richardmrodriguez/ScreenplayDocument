@@ -23,13 +23,16 @@ enum SPType {
     
     // SCENE HEADING
     SP_SCENE_HEADING, // begins with INT. , EXT. , or I./E.
-    SP_INT_EXT, //
-    SP_LOCATION,
-    SP_SCENE_HEADING_SUB_ELEMENT,
-    SP_SCENE_HEADING_SEPARATOR, // Breaks up a slugline -- EXT. BASEBALL FIELD - PITCHER'S MOUND - PAST - NIGHT
-    SP_SCENE_TIMEFRAME, // PAST, PRESENT, FUTURE, arbitrary timeframe "BEFORE DINNER", "AFTER THE EXPLOSION", etc.
-    SP_SUBLOCATION,
-    SP_TIME_OF_DAY,
+    SP_SCENE_ENVIRONMENT, // INTERIOR or EXTERIOR or combination, i.e. INT. or EXT. or I./E. or INT./EXT.
+    SP_SCENE_LOCATION,
+    SP_SCENE_SUBLOCATION,
+    SP_SCENE_HEADING_SEPARATOR, // HYPHEN - Breaks up a slugline: EXT. BASEBALL FIELD - PITCHER'S MOUND - PAST - NIGHT
+    SP_SCENE_MODIFIER, // Anything AFTER the Environment (INT. , EXT.) and the Location. Things like "- EARLIER - NIGHT - CONTINUOUS", etc.
+    SP_SCENE_TEMPORAL_CONTINUITY, //CONTINUOUS, etc.
+    SP_SCENE_SPATIAL_MOVEMENT, // TRAVELLING, FOLLOWING, etc.
+    SP_SCENE_WEATHER_CONDITION, // STORMY, SUNNY, etc. (not very likely but...)
+    SP_SCENE_TIME_PERIOD, // PAST, PRESENT, FUTURE, arbitrary timeframe "BEFORE DINNER", "AFTER THE EXPLOSION", etc.
+    SP_SCENE_TIME_OF_DAY,
 
     SP_SHOT_ANGLE, // SHOT or ANGLE on something, NOT a full scene heading / location
     
@@ -65,7 +68,7 @@ enum SPType {
     TP_DRAFT_DATE,
     TP_CONTACT,
     // -------------
-    SP_OTHER,
+    SP_OTHER, // OTHER, but WITHIN CONTENT ZONE
     SP_BLANK, // BLANK element?
     SP_OMITTED,
     // Non- content text (asterisks and/or scene numbers in the margins, headers and footers, page numbers, etc.)

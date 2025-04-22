@@ -24,7 +24,7 @@ struct SPMarginsInches
         
         // Element margins, relative to left side of page
         elements_indentations["SP_ACTION"] =          1.50;
-        elements_indentations["SP_CHARACTER"] =       3.70;
+        elements_indentations["SP_CHARACTER"] =       3.50;
         elements_indentations["SP_DIALOGUE"] =        2.50;
         elements_indentations["SP_PARENTHETICAL"] =   3.10;
     }
@@ -46,7 +46,7 @@ struct ElementIndentationsPoints
 
     
     float action =          72.0 * 1.50; // Element margins, relative to left side of page
-    float character =       72.0 * 3.70;
+    float character =       72.0 * 3.5;
     float dialogue =        72.0 * 2.50;
     float parenthetical =   72.0 * 3.10;
 
