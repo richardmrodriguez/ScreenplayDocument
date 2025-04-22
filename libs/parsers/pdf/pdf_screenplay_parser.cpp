@@ -184,14 +184,20 @@ SPType get_type_for_word(const PDFWord pdfword,
 
         if (pdfword.position.y >= margins.top) 
         { 
-            if (pdfword.position.x < (margins.pagewidth / 3.0f)) 
+            if (pdfword.position.x < (margins.pagewidth / 3.0f))
             {
                 return SPType::NON_CONTENT_TOP;
             }
+            else if (pdfword.position.x < (margins.pagewidth *0.66))
+            {
+                return SPType::SP_PAGE_REVISION_LABEL;
+            }
+            else return SPType::SP_PAGENUM;
             
             float wordwidth = charwidth * pdfword.text.size();
             float rightedge = wordwidth + pdfword.position.x;
             
+            //this block might be redundant?
             if (((rightedge - margins.right) < position_tolerance) && (pdfword.text.back() == '.')) 
             {
                 return SPType::SP_PAGENUM;
@@ -269,6 +275,7 @@ ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc
                 
                 switch(new_type)
                 {   
+                    
                     case SPType::SP_DIALOGUE:
                         new_line.line_type = SPType::SP_DIALOGUE;
                         break;
@@ -307,6 +314,7 @@ ScreenplayDoc PDFScreenplayParser::get_screenplay_doc_from_pdfdoc(PDFDoc pdf_doc
                         // TODO: then add to the page accordingly IF the page doesn't have it yet
 
                         new_page.revised = true;
+                        new_page.revision_label = new_page.revision_label + pdfword.text + " ";
                         new_line.line_type = SPType::SP_OTHER;
                         continue;
                     }
